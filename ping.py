@@ -19,4 +19,5 @@ while True:
             print(f"{ts} | {url} -> {r.status_code} | {body}", flush=True)
         except Exception as e:
             print(f"{ts} | {url} FAILED: {e}", flush=True)
+            # just added to redploy : 7:25 pm EST
     #time.sleep(interval)
