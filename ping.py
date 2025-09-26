@@ -8,7 +8,7 @@ if not urls:
     print("No TARGET_URLS/TARGET_URL set. Exiting.")
     raise SystemExit(1)
 
-print(f"pinger -> {urls} every {interval}s", flush=True)
+print(f"pinger -> {urls} ", flush=True)
 
 while True:
     ts = datetime.now(timezone.utc).isoformat()
@@ -19,5 +19,5 @@ while True:
             print(f"{ts} | {url} -> {r.status_code} | {body}", flush=True)
         except Exception as e:
             print(f"{ts} | {url} FAILED: {e}", flush=True)
-            # just added to redploy : 7:25 pm EST
+            # just added to redploy : 7:33 pm EST
     #time.sleep(interval)
