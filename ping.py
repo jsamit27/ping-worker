@@ -1,22 +1,22 @@
 import os, time, requests
-from datetime import datetime
+from datetime import datetime, timezone
 
-TARGET_URLS = os.getenv("TARGET_URLS", "").split(",")  
-# Example: set env var as "https://app1.onrender.com/hit,https://app2.onrender.com/hit"
+urls = [u.strip() for u in os.getenv("TARGET_URLS", os.getenv("TARGET_URL", "")).split(",") if u.strip()]
+interval = int(os.getenv("INTERVAL_SECONDS", "30"))
 
-INTERVAL = int(os.getenv("INTERVAL_SECONDS", "30"))
+if not urls:
+    print("No TARGET_URLS/TARGET_URL set. Exiting.")
+    raise SystemExit(1)
 
-print(f"pinger -> {TARGET_URLS} every {INTERVAL}s", flush=True)
+print(f"pinger -> {urls} every {interval}s", flush=True)
 
 while True:
-    ts = datetime.utcnow().isoformat() + "Z"
-    for url in TARGET_URLS:
-        url = url.strip()
-        if not url:
-            continue
+    ts = datetime.now(timezone.utc).isoformat()
+    for url in urls:
         try:
             r = requests.get(url, timeout=10)
-            print(f"ping {ts} -> {url} -> {r.status_code} | {r.text[:100]}", flush=True)
+            body = (r.text or "")[:100].replace("\n", " ")
+            print(f"{ts} | {url} -> {r.status_code} | {body}", flush=True)
         except Exception as e:
-            print(f"ping {ts} -> {url} FAILED: {e}", flush=True)
-    time.sleep(INTERVAL)
+            print(f"{ts} | {url} FAILED: {e}", flush=True)
+    time.sleep(interval)
