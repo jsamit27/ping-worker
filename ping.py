@@ -1,13 +1,22 @@
-import os, sys, requests
+import os, time, requests
 from datetime import datetime
 
-URL = os.environ["TARGET_URL"]  # set in Render (e.g., https://timestamp-app-xxxx.onrender.com/hit)
+TARGET_URLS = os.getenv("TARGET_URLS", "").split(",")  
+# Example: set env var as "https://app1.onrender.com/hit,https://app2.onrender.com/hit"
 
-ts = datetime.utcnow().isoformat() + "Z"
-try:
-    r = requests.get(URL, timeout=10)
-    print(f"[CRON] {ts} -> {r.status_code} | {r.text[:120]}")
-    sys.exit(0 if r.ok else 1)
-except Exception as e:
-    print(f"[CRON] {ts} FAILED: {e}")
-    sys.exit(1)
+INTERVAL = int(os.getenv("INTERVAL_SECONDS", "30"))
+
+print(f"pinger -> {TARGET_URLS} every {INTERVAL}s", flush=True)
+
+while True:
+    ts = datetime.utcnow().isoformat() + "Z"
+    for url in TARGET_URLS:
+        url = url.strip()
+        if not url:
+            continue
+        try:
+            r = requests.get(url, timeout=10)
+            print(f"ping {ts} -> {url} -> {r.status_code} | {r.text[:100]}", flush=True)
+        except Exception as e:
+            print(f"ping {ts} -> {url} FAILED: {e}", flush=True)
+    time.sleep(INTERVAL)
